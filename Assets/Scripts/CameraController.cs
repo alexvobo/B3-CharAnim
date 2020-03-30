@@ -1,21 +1,26 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class CameraController : MonoBehaviour
 {
-    // Start is called before the first frame update
+
 
     private float lookSpeed, mouseX, mouseY;
     public float moveSpeed;
-    public GameObject target;
-    private float dist = 7f;
+    private float dist;
+    private float yAngleMin;
+    private float yAngleMax;
 
-    private float yAngleMin = 20f;
-    private float yAngleMax = 50f;
+    public GameController gameController;
+    private GameObject target;
+    private bool hasTarget;
+    // Start is called before the first frame update
     void Start()
     {
+        dist = 7f;
+        yAngleMin = 20f;
+        yAngleMax = 50f;
         lookSpeed = 4.0f;
+        hasTarget = false;
     }
 
     // Update is called once per frame
@@ -23,16 +28,137 @@ public class CameraController : MonoBehaviour
     {
         mouseX += lookSpeed * Input.GetAxis("Mouse X");
         mouseY -= lookSpeed * Input.GetAxis("Mouse Y");
-        mouseY = Mathf.Clamp(mouseY, yAngleMin, yAngleMax);
+        if (Input.GetKey(KeyCode.LeftAlt))
+        {
+            ExitTarget();
+        }
+        if (Input.GetKey(KeyCode.LeftControl))
+        {
+            gameController.RemoveAgents();
+        }
+
+        DetectObjects();
+
     }
+
     private void LateUpdate()
     {
+        if (hasTarget)
+        {
+            ThirdPerson(target);
+        }
+        else
+        {
+            FreeLook();
+        }
+    }
+
+    private void ThirdPerson(GameObject target)
+    {
+        mouseY = Mathf.Clamp(mouseY, yAngleMin, yAngleMax);
+
         Vector3 thirdPersonDist = new Vector3(0, 0, -dist);
         Quaternion rotation = Quaternion.Euler(mouseY, mouseX, 0);
 
         transform.position = target.transform.position + rotation * thirdPersonDist;
         transform.LookAt(target.transform.position);
     }
+    private void FreeLook()
+    {
+        transform.eulerAngles = new Vector3(mouseY, mouseX, 0.0f);
 
-   
+        Vector3 input = Quaternion.Euler(0, transform.eulerAngles.y, 0) * new Vector3(Input.GetAxis("Horizontal"), 0.0f, Input.GetAxis("Vertical"));
+
+        transform.position += input * Time.deltaTime * moveSpeed;
+
+        if (Input.GetKey(KeyCode.Space))
+        {
+            transform.position += Vector3.up * Time.deltaTime * moveSpeed;
+        }
+        if (Input.GetKey(KeyCode.LeftShift))
+        {
+            // Only if we are above ground
+            if (transform.position.y > 0.0f)
+            {
+                transform.position -= Vector3.up * Time.deltaTime * moveSpeed;
+            }
+        }
+    }
+
+    // Raycasting object selection method
+    private void DetectObjects()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+            if (Physics.Raycast(ray, out RaycastHit hit, 1500))
+            {
+                Transform objectHit = hit.transform;
+                Debug.DrawRay(hit.point, Vector3.up, Color.red);
+                // Set our target if the object hit has a rigidbody
+                if (objectHit.CompareTag("Agent"))
+                {
+                    SetTarget(objectHit.gameObject);
+
+                }
+            }
+        }
+        else if (Input.GetMouseButtonDown(1))
+        {
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+            if (Physics.Raycast(ray, out RaycastHit hit, 1500))
+            {
+                Transform objectHit = hit.transform;
+                Debug.DrawRay(hit.point, Vector3.up, Color.red);
+                // Set our target if the object hit has a rigidbody
+                if (objectHit.CompareTag("Agent"))
+                {
+
+                    if (gameController.GetAgents().Contains((objectHit.gameObject)))
+                    {
+                        // If selected, deselect.
+                        gameController.RemoveAgents(objectHit.gameObject);
+                    }
+                    else
+                    {
+                        // Select
+                        gameController.AddAgent(objectHit.gameObject);
+                    }
+
+
+                }
+                else
+                {
+                    if (gameController.NumAgents() > 0)
+                    {
+                        Debug.Log("Sending agents to destination " + hit.transform);
+                        if (hit.transform)
+                        {
+                            gameController.MoveAgents(hit.point);
+                        }
+                    }
+                }
+            }
+
+        }
+    }
+    public void SetTarget(GameObject t)
+    {
+        target = t;
+        t.GetComponent<CharacterControllerScript>().activated = true;
+        hasTarget = true;
+    }
+    public void ExitTarget()
+    {
+        if (target)
+        {
+            target.GetComponent<CharacterControllerScript>().activated = false;
+            target = null;
+            hasTarget = false;
+        }
+
+    }
 }
