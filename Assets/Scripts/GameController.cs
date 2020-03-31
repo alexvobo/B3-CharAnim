@@ -46,14 +46,9 @@ public class GameController : MonoBehaviour
         foreach (GameObject agent in agents)
         {
             if (agent)
-                MoveAgent(agent, pos);
+                agent.GetComponent<CharacterControllerScript>().MoveAgent(pos);
 
         }
     }
 
-    // Moves agent to desired vector.
-    public void MoveAgent(GameObject agent, Vector3 t)
-    {
-        agent.GetComponent<NavMeshAgent>().destination = t;
-    }
 }

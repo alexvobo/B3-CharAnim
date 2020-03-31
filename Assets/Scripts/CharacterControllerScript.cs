@@ -12,8 +12,9 @@ public class CharacterControllerScript : MonoBehaviour
     public float groundDistance = 0.3f;
     public float moveSpeed = 0.0f;
     public bool activated;
-    Animator anim;
-    Rigidbody rigidBody;
+    private Animator anim;
+    private Rigidbody rigidBody;
+    private Vector3 dest;
 
     void Start()
     {
@@ -26,13 +27,16 @@ public class CharacterControllerScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
         if (activated)
             Move();
+        else
+            anim.SetBool("move", false);
 
     }
     private void Move()
     {
-
+        //anim.SetBool("move", true);
         float moveVertical = Input.GetAxis("Vertical");
         float moveHorizontal = Input.GetAxis("Horizontal");
 
@@ -77,9 +81,21 @@ public class CharacterControllerScript : MonoBehaviour
 
 
 
-        // rotation += Input.GetAxis("Horizontal") * rotationSpeed * Time.deltaTime;
-        // if(moveVertical == 0){
-        //   transform.eulerAngles = new Vector3(0,rotation,0);
-        // }
+        rotation += Input.GetAxis("Horizontal") * rotationSpeed * Time.deltaTime;
+        if(moveVertical == 0){
+          transform.eulerAngles = new Vector3(0,rotation,0);
+        }
+        anim.SetFloat("horizontal", rotation);
+    }
+    // Moves agent to desired vector.
+    public void MoveAgent(Vector3 t)
+    {
+        GetComponent<UnityEngine.AI.NavMeshAgent>().destination = t;
+        //anim.SetBool("move", true);
+        dest = t;
+    }
+    public Vector3 Destdir()
+    {
+        return dest;
     }
 }

@@ -13,6 +13,7 @@ public class CameraController : MonoBehaviour
     public GameController gameController;
     private GameObject target;
     private bool hasTarget;
+    private Animator anim;
     // Start is called before the first frame update
     void Start()
     {
@@ -28,9 +29,11 @@ public class CameraController : MonoBehaviour
     {
         mouseX += lookSpeed * Input.GetAxis("Mouse X");
         mouseY -= lookSpeed * Input.GetAxis("Mouse Y");
+        
         if (Input.GetKey(KeyCode.LeftAlt))
         {
             ExitTarget();
+
         }
         if (Input.GetKey(KeyCode.LeftControl))
         {
@@ -57,9 +60,10 @@ public class CameraController : MonoBehaviour
     {
         mouseY = Mathf.Clamp(mouseY, yAngleMin, yAngleMax);
 
+
         Vector3 thirdPersonDist = new Vector3(0, 0, -dist);
         Quaternion rotation = Quaternion.Euler(mouseY, mouseX, 0);
-
+        //anim.SetFloat("horizontal",mouseY);
         transform.position = target.transform.position + rotation * thirdPersonDist;
         transform.LookAt(target.transform.position);
     }
@@ -100,6 +104,7 @@ public class CameraController : MonoBehaviour
                 // Set our target if the object hit has a rigidbody
                 if (objectHit.CompareTag("Agent"))
                 {
+                    gameController.AddAgent(objectHit.gameObject);
                     SetTarget(objectHit.gameObject);
 
                 }
@@ -150,6 +155,7 @@ public class CameraController : MonoBehaviour
         target = t;
         t.GetComponent<CharacterControllerScript>().activated = true;
         hasTarget = true;
+        anim = t.GetComponent<Animator>();
     }
     public void ExitTarget()
     {
@@ -158,6 +164,7 @@ public class CameraController : MonoBehaviour
             target.GetComponent<CharacterControllerScript>().activated = false;
             target = null;
             hasTarget = false;
+            anim = null;
         }
 
     }
