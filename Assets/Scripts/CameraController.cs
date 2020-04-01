@@ -60,10 +60,8 @@ public class CameraController : MonoBehaviour
     {
         mouseY = Mathf.Clamp(mouseY, yAngleMin, yAngleMax);
 
-
         Vector3 thirdPersonDist = new Vector3(0, 0, -dist);
         Quaternion rotation = Quaternion.Euler(mouseY, mouseX, 0);
-        //anim.SetFloat("horizontal",mouseY);
         transform.position = target.transform.position + rotation * thirdPersonDist;
         transform.LookAt(target.transform.position);
     }
@@ -156,6 +154,8 @@ public class CameraController : MonoBehaviour
         t.GetComponent<CharacterControllerScript>().activated = true;
         hasTarget = true;
         anim = t.GetComponent<Animator>();
+        anim.SetBool("move", true);
+
     }
     public void ExitTarget()
     {
@@ -164,6 +164,7 @@ public class CameraController : MonoBehaviour
             target.GetComponent<CharacterControllerScript>().activated = false;
             target = null;
             hasTarget = false;
+            anim.SetBool("move", false);
             anim = null;
         }
 

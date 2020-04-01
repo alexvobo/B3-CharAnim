@@ -7,20 +7,21 @@ public class CharacterControllerScript : MonoBehaviour
 
     float rotationSpeed = 50;
     float rotation = 0f;
-    public float jumpForce = 100;
-    public LayerMask whatIsGround;
-    public float groundDistance = 0.3f;
-    public float moveSpeed = 0.0f;
+    public float jumpHeight;
+    public bool grounded;
+    public float moveSpeed;
     public bool activated;
     private Animator anim;
-    private Rigidbody rigidBody;
+    private Rigidbody rb;
     private Vector3 dest;
 
     void Start()
     {
+        jumpHeight = 20f;
+        grounded = true;
         activated = false;
         anim = GetComponent<Animator>();
-        rigidBody = GetComponent<Rigidbody>();
+        rb = GetComponent<Rigidbody>();
 
     }
 
@@ -37,55 +38,64 @@ public class CharacterControllerScript : MonoBehaviour
     private void Move()
     {
         //anim.SetBool("move", true);
-        float moveVertical = Input.GetAxis("Vertical");
-        float moveHorizontal = Input.GetAxis("Horizontal");
 
         if (Input.GetKey(KeyCode.LeftShift))
         {
-            moveSpeed = 1f;
+            moveSpeed = 2f;
         }
         else
         {
-            moveSpeed = 0.5f;
+            moveSpeed = 1f;
         }
 
 
         //print(Input.GetAxis("Vertical"));
+        float moveVertical = Input.GetAxis("Vertical");
+        float moveHorizontal = Input.GetAxis("Horizontal");
+
+        bool shouldMove = moveVertical != 0 || moveHorizontal != 0;
+
+        // Update animation parameters
+        anim.SetBool("move", shouldMove);
+        anim.SetFloat("vel_y", moveVertical * moveSpeed);
+        anim.SetFloat("vel_x", moveHorizontal * moveSpeed);
 
 
-        anim.SetFloat("vertical", moveVertical * moveSpeed);
-        anim.SetFloat("horizontal", moveHorizontal);
-
-
-        if (Input.GetKeyDown("space"))
+        if (Input.GetKey(KeyCode.Space) && grounded)
         {
-            rigidBody.AddForce(Vector3.up * jumpForce);
-            anim.SetTrigger("Jump");
+            //Vector3 jump = new Vector3(0.0f, jumpHeight, 0.0f);
+            grounded = false;
+            anim.SetFloat("jump", 1);
+
+            //rb.AddForce(jump * moveSpeed);
         }
 
-        if (Physics.Raycast(transform.position + (Vector3.up * 0.1f), Vector3.down, groundDistance, whatIsGround))
-        {
-            anim.SetBool("grounded", true);
-            anim.applyRootMotion = true;
-        }
-        else
-        {
-            anim.SetBool("grounded", false);
-        }
-
-        AnimatorStateInfo stateInfo = anim.GetCurrentAnimatorStateInfo(0);
-        // if(Input.GetKeyDown(KeyCode.Space) && stateInfo.nameHash == runStateHash)
-        // {
-        //     anim.SetTrigger (jumpHash);
-        // }
 
 
 
         rotation += Input.GetAxis("Horizontal") * rotationSpeed * Time.deltaTime;
-        if(moveVertical == 0){
-          transform.eulerAngles = new Vector3(0,rotation,0);
+        if (moveVertical == 0)
+        {
+            transform.eulerAngles = new Vector3(0, rotation, 0);
         }
-        anim.SetFloat("horizontal", rotation);
+        //anim.SetFloat("vel_x", rotation);
+    }
+    // Detects collision with the ground to enable jumping, with walls and players to reduce points and reset speed.
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Ground"))
+        {
+            grounded = true;
+            anim.SetFloat("jump", 0);
+        }
+    }
+    private void OnCollisionExit(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Ground"))
+        {
+            grounded = false;
+            anim.SetFloat("jump", 1);
+        }
     }
     // Moves agent to desired vector.
     public void MoveAgent(Vector3 t)
