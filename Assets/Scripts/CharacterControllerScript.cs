@@ -28,11 +28,11 @@ public class CharacterControllerScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
-        if (activated)
-            Move();
-        else
-            anim.SetBool("move", false);
+      anim.SetFloat("jump", 0);
+      if (activated)
+        Move();
+      else
+        anim.SetBool("move", false);
 
     }
     private void Move()
@@ -47,7 +47,6 @@ public class CharacterControllerScript : MonoBehaviour
         {
             moveSpeed = 1f;
         }
-
 
         //print(Input.GetAxis("Vertical"));
         float moveVertical = Input.GetAxis("Vertical");
@@ -64,15 +63,11 @@ public class CharacterControllerScript : MonoBehaviour
         //hold spacebar to jump, wip
         if (Input.GetKey(KeyCode.Space))
         {
-                      grounded = false;
-            anim.SetFloat("jump", 1);
+          grounded = false;
+          anim.SetFloat("jump", 1);
         } else {
           anim.SetFloat("jump", 0);
-
         }
-
-
-
 
         rotation += Input.GetAxis("Horizontal") * rotationSpeed * Time.deltaTime;
         if (moveVertical == 0)
