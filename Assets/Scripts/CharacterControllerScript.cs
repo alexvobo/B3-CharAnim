@@ -61,13 +61,14 @@ public class CharacterControllerScript : MonoBehaviour
         anim.SetFloat("vel_x", moveHorizontal * moveSpeed);
 
 
-        if (Input.GetKey(KeyCode.Space) && grounded)
+        //hold spacebar to jump, wip
+        if (Input.GetKey(KeyCode.Space))
         {
-            //Vector3 jump = new Vector3(0.0f, jumpHeight, 0.0f);
-            grounded = false;
+                      grounded = false;
             anim.SetFloat("jump", 1);
+        } else {
+          anim.SetFloat("jump", 0);
 
-            //rb.AddForce(jump * moveSpeed);
         }
 
 
@@ -83,14 +84,21 @@ public class CharacterControllerScript : MonoBehaviour
     // Detects collision with the ground to enable jumping, with walls and players to reduce points and reset speed.
     private void OnCollisionEnter(Collision collision)
     {
+      print("OnCollisionEnter");
+
         if (collision.gameObject.CompareTag("Ground"))
         {
+          print("OnCollisionEnter if ");
+
             grounded = true;
             anim.SetFloat("jump", 0);
+            print("OnCollisionEnter after");
+
         }
     }
     private void OnCollisionExit(Collision collision)
     {
+      print("OnCollisionExit");
         if (collision.gameObject.CompareTag("Ground"))
         {
             grounded = false;
