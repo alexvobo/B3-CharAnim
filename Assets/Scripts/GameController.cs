@@ -7,10 +7,15 @@ public class GameController : MonoBehaviour
 {
 
     private List<GameObject> agents;
+    public GameObject agentPrefab;
+    public int numBots;
+    private GameObject spawn;
     // Start is called before the first frame update
     void Start()
     {
+        spawn = GameObject.FindGameObjectWithTag("spawn");
         agents = new List<GameObject>();
+        LoadAgents(spawn);
     }
 
     // Update is called once per frame
@@ -50,5 +55,23 @@ public class GameController : MonoBehaviour
 
         }
     }
+    // Randomize a spawn location and return a vector
+    private Vector3 GenSpawnPoint(GameObject spawnPoint)
+    {
+        return new Vector3(spawnPoint.transform.position.x + (Random.insideUnitCircle * 3).x, 1f, spawnPoint.transform.position.z + (Random.insideUnitCircle * 3).x);
+    }
+    //load #numBots agents at specified spawn
+    public void LoadAgents(GameObject spawnPoint)
+    {
 
+        //Get random coordinates in spawn object
+        GameObject bot_father = new GameObject("CONTENDERS");
+        for (int i = 0; i <numBots; i++)
+        {
+            GameObject bot = Instantiate(agentPrefab) as GameObject;
+           //bot.GetComponent<LookAt>().head = bot.transform;
+            bot.transform.parent = bot_father.transform;
+            bot.transform.position = GenSpawnPoint(spawnPoint);
+        }
+    }
 }

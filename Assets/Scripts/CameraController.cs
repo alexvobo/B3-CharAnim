@@ -150,11 +150,13 @@ public class CameraController : MonoBehaviour
     }
     public void SetTarget(GameObject t)
     {
-        target = t;
+
         t.GetComponent<CharacterControllerScript>().activated = true;
         hasTarget = true;
         anim = t.GetComponent<Animator>();
         anim.SetBool("move", true);
+        target = t;
+
 
     }
     public void ExitTarget()
@@ -162,10 +164,10 @@ public class CameraController : MonoBehaviour
         if (target)
         {
             target.GetComponent<CharacterControllerScript>().activated = false;
-            target = null;
             hasTarget = false;
             anim.SetBool("move", false);
             anim = null;
+            target = null;
         }
 
     }

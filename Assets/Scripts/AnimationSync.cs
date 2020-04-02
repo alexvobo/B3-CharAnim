@@ -5,15 +5,16 @@ using UnityEngine.AI;
 
 [RequireComponent(typeof(NavMeshAgent))]
 [RequireComponent(typeof(Animator))]
-public class LocomotionSimpleAgent : MonoBehaviour
+public class AnimationSync : MonoBehaviour
 {
-    Animator anim;
-    NavMeshAgent agent;
-    Vector2 smoothDeltaPosition = Vector2.zero;
-    Vector2 velocity = Vector2.zero;
+    private Animator anim;
+    private NavMeshAgent agent;
+    private Vector2 smoothDeltaPosition = Vector2.zero;
+    private Vector2 velocity = Vector2.zero;
 
     void Start()
     {
+
         anim = GetComponent<Animator>();
         agent = GetComponent<NavMeshAgent>();
         // Don’t update position automatically
@@ -47,16 +48,20 @@ public class LocomotionSimpleAgent : MonoBehaviour
         LookAt lookAt = GetComponent<LookAt>();
         if (lookAt)
             lookAt.lookAtTargetPosition = agent.steeringTarget + transform.forward;
+
         // Pull character towards agent
         if (worldDeltaPosition.magnitude > agent.radius)
             transform.position = agent.nextPosition - 0.9f * worldDeltaPosition;
     }
 
-    void OnAnimatorMove()
+    public void OnAnimatorMove()
     {
-        // Update position based on animation movement using navigation surface height
-        Vector3 position = anim.rootPosition;
-        position.y = agent.nextPosition.y;
-        transform.position = position;
+        if (anim && agent)
+        {
+            // Update position based on animation movement using navigation surface height
+            Vector3 position = anim.rootPosition;
+            position.y = agent.nextPosition.y;
+            transform.position = position;
+        }
     }
 }

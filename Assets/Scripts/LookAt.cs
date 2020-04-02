@@ -5,6 +5,7 @@ using System.Collections;
 [RequireComponent(typeof(Animator))]
 public class LookAt : MonoBehaviour
 {
+
     public Transform head = null;
     public Vector3 lookAtTargetPosition;
     public float lookAtCoolTime = 0.2f;
@@ -17,7 +18,7 @@ public class LookAt : MonoBehaviour
 
     void Start()
     {
-        head = gameObject.transform;
+        head = GameObject.Find("mixamorig:Head").transform;
         if (!head)
         {
             Debug.LogError("No head transform - LookAt disabled");
@@ -29,7 +30,7 @@ public class LookAt : MonoBehaviour
         lookAtPosition = lookAtTargetPosition;
     }
 
-    void OnAnimatorIK()
+    void OnAnimatorIK(int layerIndex)
     {
         lookAtTargetPosition.y = head.position.y;
         float lookAtTargetWeight = looking ? 1.0f : 0.0f;
