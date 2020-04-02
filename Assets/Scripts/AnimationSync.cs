@@ -11,7 +11,7 @@ public class AnimationSync : MonoBehaviour
     private NavMeshAgent agent;
     private Vector2 smoothDeltaPosition = Vector2.zero;
     private Vector2 velocity = Vector2.zero;
-
+    private float moveSpeed;
     void Start()
     {
 
@@ -19,10 +19,12 @@ public class AnimationSync : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         // Don’t update position automatically
         agent.updatePosition = false;
+  
     }
 
     void Update()
     {
+        moveSpeed = GetComponent<CharacterControllerScript>().moveSpeed;
         Vector3 worldDeltaPosition = agent.nextPosition - transform.position;
 
         // Map 'worldDeltaPosition' to local space
@@ -42,8 +44,16 @@ public class AnimationSync : MonoBehaviour
 
         // Update animation parameters
         anim.SetBool("move", shouldMove);
-        anim.SetFloat("vel_x", velocity.x);
-        anim.SetFloat("vel_y", velocity.y);
+        if (agent.isOnOffMeshLink)
+        {
+            anim.SetFloat("jump", 1);
+            jumpControl();
+
+        }
+       
+        
+        anim.SetFloat("vel_x", velocity.x*moveSpeed);
+        anim.SetFloat("vel_y", velocity.y*moveSpeed);
 
         LookAt lookAt = GetComponent<LookAt>();
         if (lookAt)
@@ -62,6 +72,22 @@ public class AnimationSync : MonoBehaviour
             Vector3 position = anim.rootPosition;
             position.y = agent.nextPosition.y;
             transform.position = position;
+        }
+    }
+    public void jumpControl()
+    {
+        OffMeshLinkData data = agent.currentOffMeshLinkData;
+
+        Vector3 endPos = data.endPos + Vector3.up * agent.baseOffset;
+
+        //Move the agent to the end point
+        agent.transform.position = Vector3.MoveTowards(agent.transform.position, endPos, agent.speed * Time.deltaTime);
+
+        //when the agent reach the end point you should tell it, and the agent will "exit" the link and work normally after that
+        if (agent.transform.position == endPos)
+        {
+            agent.CompleteOffMeshLink();
+            anim.SetFloat("jump", 0);
         }
     }
 }
