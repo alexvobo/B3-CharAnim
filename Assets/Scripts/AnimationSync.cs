@@ -45,10 +45,10 @@ public class AnimationSync : MonoBehaviour
         anim.SetFloat("vel_x", velocity.x);
         anim.SetFloat("vel_y", velocity.y);
 
-        LookAt lookAt = GetComponent<LookAt>();
-        if (lookAt)
-            lookAt.lookAtTargetPosition = agent.steeringTarget + transform.forward;
-
+        /*     LookAt lookAt = GetComponent<LookAt>();
+             if (lookAt)
+                 lookAt.lookAtTargetPosition = agent.steeringTarget + transform.forward;
+     */
         // Pull character towards agent
         if (worldDeltaPosition.magnitude > agent.radius)
             transform.position = agent.nextPosition - 0.9f * worldDeltaPosition;
