@@ -17,6 +17,9 @@ public class CameraController : MonoBehaviour
     float fovMin = 15f;
     float fovMax = 90f;
     float wheelZoomSens = 10f;
+    float clicked = 0;
+    float clicktime = 0;
+    float clickdelay = 0.5f;
     // Start is called before the first frame update
     void Start()
     {
@@ -26,6 +29,9 @@ public class CameraController : MonoBehaviour
         lookSpeed = 2.0f;
         hasTarget = false;
         agent = GameObject.FindGameObjectWithTag("Agent");
+
+
+
     }
 
     // Update is called once per frame
@@ -87,9 +93,6 @@ public class CameraController : MonoBehaviour
     // Raycasting object selection method
     private void DetectObjects()
     {
-        float clicked = 0;
-        float clicktime = 0;
-        float clickdelay = 0.5f;
 
 
 
@@ -139,8 +142,8 @@ public class CameraController : MonoBehaviour
                     {
                         clicked = 0;
                         clicktime = 0;
-                        agent.GetComponent<CharacterControllerScript>().moveSpeed = 1;
-                        Debug.Log("Double CLick: ");
+                        agent.GetComponent<CharacterControllerScript>().moveSpeed = 1f;
+                        Debug.Log("Double Cick");
 
                     }
                     else if (clicked > 2 || Time.time - clicktime > 1)

@@ -19,7 +19,7 @@ public class AnimationSync : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         // Don’t update position automatically
         agent.updatePosition = false;
-  
+
     }
 
     void Update()
@@ -50,14 +50,10 @@ public class AnimationSync : MonoBehaviour
             jumpControl();
 
         }
-       
-        
-        anim.SetFloat("vel_x", velocity.x*moveSpeed);
-        anim.SetFloat("vel_y", velocity.y*moveSpeed);
 
-        LookAt lookAt = GetComponent<LookAt>();
-        if (lookAt)
-            lookAt.lookAtTargetPosition = agent.steeringTarget + transform.forward;
+
+        anim.SetFloat("vel_x", velocity.x * moveSpeed);
+        anim.SetFloat("vel_y", velocity.y * moveSpeed);
 
         // Pull character towards agent
         if (worldDeltaPosition.magnitude > agent.radius)
@@ -80,10 +76,8 @@ public class AnimationSync : MonoBehaviour
 
         Vector3 endPos = data.endPos + Vector3.up * agent.baseOffset;
 
-        //Move the agent to the end point
         agent.transform.position = Vector3.MoveTowards(agent.transform.position, endPos, agent.speed * Time.deltaTime);
 
-        //when the agent reach the end point you should tell it, and the agent will "exit" the link and work normally after that
         if (agent.transform.position == endPos)
         {
             agent.CompleteOffMeshLink();
