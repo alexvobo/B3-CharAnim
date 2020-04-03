@@ -65,11 +65,11 @@ public class GameController : MonoBehaviour
     {
 
         //Get random coordinates in spawn object
-        GameObject bot_father = new GameObject("CONTENDERS");
-        for (int i = 0; i <numBots; i++)
+        GameObject bot_father = new GameObject("Hero");
+        for (int i = 0; i < numBots; i++)
         {
             GameObject bot = Instantiate(agentPrefab) as GameObject;
-           //bot.GetComponent<LookAt>().head = bot.transform;
+            //bot.GetComponent<LookAt>().head = bot.transform;
             bot.transform.parent = bot_father.transform;
             bot.transform.position = GenSpawnPoint(spawnPoint);
         }

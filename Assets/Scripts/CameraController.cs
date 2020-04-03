@@ -9,27 +9,33 @@ public class CameraController : MonoBehaviour
     private float dist;
     private float yAngleMin;
     private float yAngleMax;
-
+    private GameController gameController;
     private GameObject target;
-    private GameObject agent;
     private bool hasTarget;
     private Animator anim;
-    float fovMin = 15f;
-    float fovMax = 90f;
-    float wheelZoomSens = 10f;
-    float clicked = 0;
-    float clicktime = 0;
-    float clickdelay = 0.5f;
+    private float fovMin;
+    private float fovMax;
+    private float wheelZoomSens;
+    private float clicked;
+    private float clicktime;
+    private float clickdelay;
+    private float agentspeed;
     // Start is called before the first frame update
     void Start()
     {
+        fovMin = 15f;
+        fovMax = 90f;
+        wheelZoomSens = 10f;
+        clicked = 0;
+        clicktime = 0;
+        clickdelay = 0.5f;
         dist = 7f;
         yAngleMin = 20f;
         yAngleMax = 50f;
         lookSpeed = 2.0f;
         hasTarget = false;
-        agent = GameObject.FindGameObjectWithTag("Agent");
-
+        //agent = GameObject.FindGameObjectWithTag("Agent");
+        gameController = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameController>();
 
 
     }
@@ -46,14 +52,14 @@ public class CameraController : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (hasTarget)
-        {
-            ThirdPerson(target);
-        }
-        else
-        {
-            FreeLook();
-        }
+        /*   if (hasTarget)
+           {
+               ThirdPerson(target);
+           }
+           else
+           {*/
+        FreeLook();
+        /*}*/
     }
 
     private void ThirdPerson(GameObject target)
@@ -95,7 +101,6 @@ public class CameraController : MonoBehaviour
     {
 
 
-
         if (Input.GetMouseButtonDown(1))
         {
 
@@ -108,19 +113,38 @@ public class CameraController : MonoBehaviour
                 // Set our target if the object hit has a rigidbody
                 if (objectHit.CompareTag("Agent"))
                 {
-                    //gameController.AddAgent(objectHit.gameObject);
-                    SetTarget(objectHit.gameObject);
+
+                    if (gameController.GetAgents().Contains((objectHit.gameObject)))
+                    {
+                        // If selected, deselect.
+                        gameController.RemoveAgents(objectHit.gameObject);
+                    }
+                    else
+                    {
+                        // Select
+                        gameController.AddAgent(objectHit.gameObject);
+                    }
+
 
                 }
                 else
                 {
-                    ExitTarget();
+                    if (gameController.NumAgents() > 0)
+                    {
+                        Debug.Log("Sending agents to destination " + hit.transform);
+                        if (hit.transform)
+                        {
+                            gameController.MoveAgents(hit.point);
+                        }
+                    }
                 }
             }
         }
         else if (Input.GetMouseButtonDown(0))
         {
-            if (agent)
+            agentspeed = .5f;
+
+            if (gameController.GetAgents().Count > 0)
             {
                 clicked++;
 
@@ -135,14 +159,13 @@ public class CameraController : MonoBehaviour
                     if (clicked == 1)
                     {
                         clicktime = Time.time;
-                        agent.GetComponent<CharacterControllerScript>().moveSpeed = .5f;
                     }
 
                     if (clicked > 1 && Time.time - clicktime < clickdelay)
                     {
                         clicked = 0;
                         clicktime = 0;
-                        agent.GetComponent<CharacterControllerScript>().moveSpeed = 1f;
+                        agentspeed = 1f;
                         Debug.Log("Double Cick");
 
                     }
@@ -152,9 +175,13 @@ public class CameraController : MonoBehaviour
                         return;
                     }
 
+                    foreach (var agent in gameController.GetAgents())
+                    {
+                        agent.GetComponent<CharacterControllerScript>().moveSpeed = agentspeed;
+                    }
                     Debug.Log("Sending agents to destination " + hit.transform);
 
-                    agent.GetComponent<CharacterControllerScript>().MoveAgent(hit.point);
+                    gameController.MoveAgents(hit.point);
 
                 }
             }
