@@ -10,7 +10,7 @@ public class CameraController : MonoBehaviour
     private float yAngleMin;
     private float yAngleMax;
 
-    public GameController gameController;
+    //public GameController gameController;
     private GameObject target;
     private bool hasTarget;
     private Animator anim;
@@ -29,17 +29,17 @@ public class CameraController : MonoBehaviour
     {
         mouseX += lookSpeed * Input.GetAxis("Mouse X");
         mouseY -= lookSpeed * Input.GetAxis("Mouse Y");
-        
-        if (Input.GetKey(KeyCode.LeftAlt))
-        {
-            ExitTarget();
 
-        }
-        if (Input.GetKey(KeyCode.LeftControl))
-        {
-            gameController.RemoveAgents();
-        }
+        /*       if (Input.GetKey(KeyCode.LeftAlt))
+               {
+                   ExitTarget();
 
+               }
+               if (Input.GetKey(KeyCode.LeftControl))
+               {
+                   gameController.RemoveAgents();
+               }
+               */
         DetectObjects();
 
     }
@@ -102,52 +102,14 @@ public class CameraController : MonoBehaviour
                 // Set our target if the object hit has a rigidbody
                 if (objectHit.CompareTag("Agent"))
                 {
-                    gameController.AddAgent(objectHit.gameObject);
+                    //gameController.AddAgent(objectHit.gameObject);
                     SetTarget(objectHit.gameObject);
 
                 }
             }
         }
-        else if (Input.GetMouseButtonDown(1))
-        {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-
-            if (Physics.Raycast(ray, out RaycastHit hit, 1500))
-            {
-                Transform objectHit = hit.transform;
-                Debug.DrawRay(hit.point, Vector3.up, Color.red);
-                // Set our target if the object hit has a rigidbody
-                if (objectHit.CompareTag("Agent"))
-                {
-
-                    if (gameController.GetAgents().Contains((objectHit.gameObject)))
-                    {
-                        // If selected, deselect.
-                        gameController.RemoveAgents(objectHit.gameObject);
-                    }
-                    else
-                    {
-                        // Select
-                        gameController.AddAgent(objectHit.gameObject);
-                    }
-
-
-                }
-                else
-                {
-                    if (gameController.NumAgents() > 0)
-                    {
-                        Debug.Log("Sending agents to destination " + hit.transform);
-                        if (hit.transform)
-                        {
-                            gameController.MoveAgents(hit.point);
-                        }
-                    }
-                }
-            }
-
-        }
     }
+
     public void SetTarget(GameObject t)
     {
         target = t;
